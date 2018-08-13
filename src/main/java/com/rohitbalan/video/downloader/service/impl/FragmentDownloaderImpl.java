@@ -20,9 +20,10 @@ public class FragmentDownloaderImpl implements FragmentDownloader {
     private Logger logger = LoggerFactory.getLogger(FragmentDownloaderImpl.class);
 
     @Override
-    public Callable<Void> download(final Fragment fragment, final CountDownLatch countDownLatch) {
+    public Callable<Void> download(final Fragment fragment, final CountDownLatch countDownLatch, final int total) {
         return () -> {
             try {
+                logger.info("Downloading {} of {}", fragment.getNumber(), total);
                 download(fragment, 0);
                 return null;
             } finally {
@@ -33,7 +34,6 @@ public class FragmentDownloaderImpl implements FragmentDownloader {
 
     protected void download(final Fragment fragment, final int attempt) throws IOException {
         try {
-            logger.info("Downloading fragment number: {}  ", fragment.getNumber());
             fragment.setStatus(Status.PROCESSING);
             final URL website = new URL(fragment.getUrl());
             final ReadableByteChannel rbc = Channels.newChannel(website.openStream());

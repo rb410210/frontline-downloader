@@ -6,5 +6,5 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
 public interface FragmentDownloader {
-    Callable<Void> download(Fragment fragment, CountDownLatch countDownLatch);
+    Callable<Void> download(Fragment fragment, CountDownLatch countDownLatch, int total);
 }

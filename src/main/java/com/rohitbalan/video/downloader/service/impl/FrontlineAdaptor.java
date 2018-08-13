@@ -38,9 +38,9 @@ public class FrontlineAdaptor implements SiteAdaptor {
             logger.debug("fragments count: {}, fragments: {}", fragments.size(), fragments);
 
             final CountDownLatch countDownLatch = new CountDownLatch(fragments.size());
-            final ExecutorService executor = Executors.newFixedThreadPool(5);
+            final ExecutorService executor = Executors.newFixedThreadPool(2);
             for(final Fragment fragment: fragments) {
-                executor.submit(fragmentDownloader.download(fragment, countDownLatch));
+                executor.submit(fragmentDownloader.download(fragment, countDownLatch, fragments.size()));
             }
             countDownLatch.await();
             executor.shutdown();
