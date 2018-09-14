@@ -29,7 +29,6 @@ public class YoutubeDLBridgeImpl implements YoutubeDLBridge {
 
     private String runOption(final String url, final String option)  throws IOException, InterruptedException {
         final ProcessBuilder pb = new ProcessBuilder("/bin/sh", "-c", "youtube-dl " + option + " '" + url + "'");
-        //pb.inheritIO();
         final Process p = pb.start();
         p.waitFor();
         final BufferedReader b = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -38,7 +37,6 @@ public class YoutubeDLBridgeImpl implements YoutubeDLBridge {
 
         while ((line = b.readLine()) != null) {
             output = line;
-            //logger.debug("Line: {}", line);
         }
 
         b.close();

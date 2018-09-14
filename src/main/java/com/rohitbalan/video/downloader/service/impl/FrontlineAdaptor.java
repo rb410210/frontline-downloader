@@ -7,6 +7,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.FileOutputStream;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -34,18 +38,28 @@ public class FrontlineAdaptor implements SiteAdaptor {
     public void download(final String url) {
         try {
             final String playListUrl = youtubeDLBridge.getUrl(url);
-            final List<Fragment> fragments = fragmentSearcher.search(playListUrl);
-            logger.debug("fragments count: {}, fragments: {}", fragments.size(), fragments);
+            final String fileName = youtubeDLBridge.getFileName(url);
+            if(playListUrl.indexOf("m3u") > -1) {
+                final List<Fragment> fragments = fragmentSearcher.search(playListUrl);
+                logger.debug("fragments count: {}, fragments: {}", fragments.size(), fragments);
 
-            final CountDownLatch countDownLatch = new CountDownLatch(fragments.size());
-            final ExecutorService executor = Executors.newFixedThreadPool(2);
-            for(final Fragment fragment: fragments) {
-                executor.submit(fragmentDownloader.download(fragment, countDownLatch, fragments.size()));
+                final CountDownLatch countDownLatch = new CountDownLatch(fragments.size());
+                final ExecutorService executor = Executors.newFixedThreadPool(2);
+                for(final Fragment fragment: fragments) {
+                    executor.submit(fragmentDownloader.download(fragment, countDownLatch, fragments.size()));
+                }
+                countDownLatch.await();
+                executor.shutdown();
+
+                fragmentAssembler.assemble(fragments, Paths.get(fileName));
+            } else {
+                final URL fileUrl = new URL(playListUrl);
+                final ReadableByteChannel rbc = Channels.newChannel(fileUrl.openStream());
+                FileOutputStream fos = new FileOutputStream(fileName);
+                fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+                fos.close();
+                rbc.close();
             }
-            countDownLatch.await();
-            executor.shutdown();
-
-            fragmentAssembler.assemble(fragments, Paths.get(youtubeDLBridge.getFileName(url)));
         } catch(final Throwable e) {
             logger.error(e.getMessage(), e);
         }
