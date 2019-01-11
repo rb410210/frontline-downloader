@@ -37,8 +37,17 @@ public class FrontlineAdaptor implements SiteAdaptor {
     @Override
     public void download(final String url) {
         try {
-            final String playListUrl = youtubeDLBridge.getUrl(url);
             final String fileName = youtubeDLBridge.getFileName(url);
+            download(url, fileName);
+        } catch(final Throwable e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void download(final String url, final String fileName) {
+        try {
+            final String playListUrl = youtubeDLBridge.getUrl(url);
             if(playListUrl.indexOf("m3u") > -1) {
                 final List<Fragment> fragments = fragmentSearcher.search(playListUrl);
                 logger.debug("fragments count: {}, fragments: {}", fragments.size(), fragments);

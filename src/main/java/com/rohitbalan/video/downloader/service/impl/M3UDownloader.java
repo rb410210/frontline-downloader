@@ -40,6 +40,15 @@ public class M3UDownloader implements SiteAdaptor {
     public void download(final String playListUrl) {
         try {
             final String fileName = FilenameUtils.getBaseName(playListUrl) + ".mp4";
+            download(playListUrl, fileName);
+        } catch(final Throwable e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void download(final String playListUrl, final String fileName) {
+        try {
             if(playListUrl.indexOf(".m3u") > -1) {
                 final List<Fragment> fragments = fragmentSearcher.search(playListUrl);
                 logger.debug("fragments count: {}, fragments: {}", fragments.size(), fragments);
