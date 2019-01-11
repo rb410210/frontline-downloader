@@ -1,7 +1,11 @@
 package com.rohitbalan.video.downloader.service.impl;
 
 import com.rohitbalan.video.downloader.model.Fragment;
-import com.rohitbalan.video.downloader.service.*;
+import com.rohitbalan.video.downloader.service.FragmentAssembler;
+import com.rohitbalan.video.downloader.service.FragmentDownloader;
+import com.rohitbalan.video.downloader.service.FragmentSearcher;
+import com.rohitbalan.video.downloader.service.SiteAdaptor;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +22,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Service
-public class FrontlineAdaptor implements SiteAdaptor {
+public class M3UDownloader implements SiteAdaptor {
 
-    private Logger logger = LoggerFactory.getLogger(FrontlineAdaptor.class);
+    private Logger logger = LoggerFactory.getLogger(com.rohitbalan.video.downloader.service.impl.FrontlineAdaptor.class);
 
     @Autowired
     private FragmentSearcher fragmentSearcher;
@@ -31,15 +35,12 @@ public class FrontlineAdaptor implements SiteAdaptor {
     @Autowired
     private FragmentAssembler fragmentAssembler;
 
-    @Autowired
-    private YoutubeDLBridge youtubeDLBridge;
 
     @Override
-    public void download(final String url) {
+    public void download(final String playListUrl) {
         try {
-            final String playListUrl = youtubeDLBridge.getUrl(url);
-            final String fileName = youtubeDLBridge.getFileName(url);
-            if(playListUrl.indexOf("m3u") > -1) {
+            final String fileName = FilenameUtils.getBaseName(playListUrl) + ".mp4";
+            if(playListUrl.indexOf(".m3u") > -1) {
                 final List<Fragment> fragments = fragmentSearcher.search(playListUrl);
                 logger.debug("fragments count: {}, fragments: {}", fragments.size(), fragments);
 
@@ -66,7 +67,7 @@ public class FrontlineAdaptor implements SiteAdaptor {
     }
 
     @Override
-    public boolean adaptable(final String url) {
-        return url.indexOf(".pbs.org/") > -1;
+    public boolean adaptable(final String playListUrl) {
+        return playListUrl.indexOf(".m3u") > -1;
     }
 }
