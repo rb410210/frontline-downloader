@@ -42,8 +42,8 @@ public class FragmentDownloaderImpl implements FragmentDownloader {
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
             fragment.setStatus(Status.COMPLETED);
             logger.info("Downloaded {} to {} ", fragment.getUrl(), name);
-        } catch (IOException e) {
-            if(attempt > 5) {
+        } catch (Exception e) {
+            if(attempt > 10) {
                 logger.error(e.getMessage(), e);
                 throw e;
             } else {

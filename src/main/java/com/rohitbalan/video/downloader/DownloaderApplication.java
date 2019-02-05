@@ -1,7 +1,6 @@
 package com.rohitbalan.video.downloader;
 
 import com.rohitbalan.video.downloader.service.SiteAdaptor;
-import com.rohitbalan.video.downloader.service.impl.FrontlineAdaptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +8,10 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 @SpringBootApplication
 public class DownloaderApplication implements ApplicationRunner {
@@ -22,23 +21,14 @@ public class DownloaderApplication implements ApplicationRunner {
     private Map<String, SiteAdaptor> siteAdaptors;
 
     public static void main(final String[] args) {
-        ConfigurableApplicationContext context = SpringApplication.run(DownloaderApplication.class, args);
-        for (final String arg: args) {
-            /*
-            for(final Map.Entry<String, SiteAdaptor> siteAdaptorEntry :context.getBeansOfType(SiteAdaptor.class).entrySet()) {
-                final SiteAdaptor siteAdaptor = siteAdaptorEntry.getValue();
-                if(siteAdaptor.adaptable(arg)) {
-                    siteAdaptor.download(arg);
-                }
-            }
-            */
-        }
+        SpringApplication.run(DownloaderApplication.class, args);
+
     }
 
     @Override
     public void run(final ApplicationArguments applicationArguments) throws Exception {
         logger.debug("applicationArguments: {}", applicationArguments);
-        final Set<String> options = applicationArguments.getOptionNames();
+        final Set<String> options = new TreeSet<>(applicationArguments.getOptionNames());
         for(final String option: options) {
             if(option.startsWith("url")) {
                 final String fileNameOption = option.replace("url", "file");
